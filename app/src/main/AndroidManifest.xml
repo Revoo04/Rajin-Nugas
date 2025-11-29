@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RajinTugas">
         <activity
+            android:name=".AddTaskActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false" />
+        <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
         <activity

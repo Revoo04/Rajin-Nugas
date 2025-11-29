@@ -39,19 +39,26 @@ android {
 }
 
 dependencies {
-    // --- INI BAGIAN DATABASE (ROOM) ---
+    implementation(libs.androidx.activity)
+    // --- DATABASE (ROOM) ---
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
 
-    // --- INI BAWAAN ANDROID STUDIO ---
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    // --- DESAIN & TAMPILAN (CardView & ConstraintLayout) ---
+    // Ini yang tadi bikin error karena kurang!
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+
+    // --- SISTEM UTAMA ---
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.activity:activity-ktx:1.8.2")
+
+    // --- TESTING (Bawaan) ---
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }

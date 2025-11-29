@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_blue"
+        android:padding="24dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tambah Tugas Baru"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Judul Tugas"
+            android:layout_marginBottom="8dp"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/etTitle"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_input_rounded"
+            android:hint="Contoh: Makalah RPL"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tanggal Deadline (dd-MM-yyyy)"
+            android:layout_marginBottom="8dp"
+            android:textStyle="bold"/>
+
+        <EditText
+            android:id="@+id/etDate"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="@drawable/bg_input_rounded"
+            android:hint="Contoh: 15-10-2025"
+            android:inputType="date"
+            android:paddingHorizontal="16dp"
+            android:layout_marginBottom="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Prioritas"
+            android:layout_marginBottom="8dp"
+            android:textStyle="bold"/>
+
+        <RadioGroup
+            android:id="@+id/rgPriority"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="30dp">
+
+            <RadioButton
+                android:id="@+id/rbHigh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Penting (Merah)"
+                android:textColor="#D32F2F"/>
+
+            <RadioButton
+                android:id="@+id/rbMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sedang (Kuning)"
+                android:textColor="#FBC02D"/>
+
+            <RadioButton
+                android:id="@+id/rbLow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Santai (Hijau)"
+                android:textColor="#388E3C"/>
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/btnSaveTask"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="SIMPAN TUGAS"
+            android:backgroundTint="@color/primary_blue"
+            android:textColor="@color/white"
+            android:textStyle="bold"/>
+
+    </LinearLayout>
+</LinearLayout>

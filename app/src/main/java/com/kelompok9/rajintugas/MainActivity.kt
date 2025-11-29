@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         val etPassword = findViewById<EditText>(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val tvRegister = findViewById<TextView>(R.id.tvRegister)
+        val tvForgotPassword = findViewById<TextView>(R.id.tvForgotPassword)
 
         // 3. Logika Tombol MASUK (Login)
         btnLogin.setOnClickListener {
@@ -43,24 +44,29 @@ class MainActivity : AppCompatActivity() {
                 val user = db.appDao().loginUser(email, password)
 
                 if (user != null) {
-                    Toast.makeText(this@MainActivity, "Login Berhasil! Halo ${user.username}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@MainActivity, "Login Berhasil!", Toast.LENGTH_SHORT).show()
 
-                    // Nanti di sini kita pindah ke halaman Dashboard Tugas
+                    // --- BAGIAN INI YANG KITA UBAH ---
+                    // Pindah ke Dashboard & Kirim Nama User
+                    val intent = Intent(this@MainActivity, DashboardActivity::class.java)
+                    intent.putExtra("USERNAME", user.username) // Kirim nama biar bisa disapa
+                    startActivity(intent)
+                    finish() // Tutup halaman Login biar gak bisa balik lagi
+                    // ----------------------------------
+
                 } else {
                     Toast.makeText(this@MainActivity, "Email atau Password salah!", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-        // 4. Logika Tombol DAFTAR (Ini yang baru kita aktifkan!)
+        // 4. Logika Tombol DAFTAR
         tvRegister.setOnClickListener {
-            // Kode ini artinya: "Pindah dari sini (MainActivity) ke RegisterActivity"
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
 
-        // Logika Lupa Password
-        val tvForgotPassword = findViewById<TextView>(R.id.tvForgotPassword) // Pastikan ID di XML sudah ditambah
+        // 5. Logika Lupa Password
         tvForgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
