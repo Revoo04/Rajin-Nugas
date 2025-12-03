@@ -16,7 +16,7 @@
             android:id="@+id/ivBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher_foreground"
+            android:src="@mipmap/ic_launcher"
             android:layout_gravity="start"
             android:layout_marginBottom="20dp"/>
 
@@ -70,11 +70,12 @@
             android:layout_marginBottom="30dp"/>
 
         <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Setuju Dengan Privasi &amp; Ketentuan"
-            android:textColor="@color/white"
-            android:layout_marginBottom="20dp"/>
+            android:id="@+id/cbAgree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Setuju Dengan Privasi &amp; Ketentuan"
+        android:textColor="@color/white"
+        android:layout_marginBottom="20dp"/>
 
         <Button
             android:id="@+id/btnRegister"

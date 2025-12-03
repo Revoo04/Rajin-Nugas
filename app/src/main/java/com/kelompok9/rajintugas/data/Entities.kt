@@ -4,17 +4,17 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-// --- TABEL USER (Untuk Login/Register) ---
+// --- TABEL USER ---
 @Entity(tableName = "users")
 data class User(
     @PrimaryKey(autoGenerate = true) val user_id: Int = 0,
     val username: String,
     val email: String,
     val password: String,
-    val role: String // 'user' atau 'guest'
+    val role: String
 )
 
-// --- TABEL PRIORITY (Warna & Level Prioritas) ---
+// --- TABEL PRIORITY ---
 @Entity(tableName = "priorities")
 data class Priority(
     @PrimaryKey(autoGenerate = true) val priority_id: Int = 0,
@@ -22,32 +22,21 @@ data class Priority(
     val color_code: String
 )
 
-// --- TABEL TASK (Tugas Utama) ---
-@Entity(
-    tableName = "tasks",
-    foreignKeys = [
-        ForeignKey(entity = User::class, parentColumns = ["user_id"], childColumns = ["user_id"], onDelete = ForeignKey.CASCADE),
-        ForeignKey(entity = Priority::class, parentColumns = ["priority_id"], childColumns = ["priority_id"])
-    ]
-)
+// --- TABEL TASK  ---
+@Entity(tableName = "tasks")
 data class Task(
     @PrimaryKey(autoGenerate = true) val task_id: Int = 0,
     val user_id: Int,
     val title: String,
     val description: String,
-    val due_date: Long, // Format tanggal disimpan sebagai angka
-    val status: String, // 'pending' atau 'done'
+    val due_date: Long,
+    val status: String,
     val priority_id: Int,
     val created_at: Long = System.currentTimeMillis()
 )
 
-// --- TABEL REMINDER (Pengingat) ---
-@Entity(
-    tableName = "reminders",
-    foreignKeys = [
-        ForeignKey(entity = Task::class, parentColumns = ["task_id"], childColumns = ["task_id"], onDelete = ForeignKey.CASCADE)
-    ]
-)
+// --- TABEL REMINDER ---
+@Entity(tableName = "reminders")
 data class Reminder(
     @PrimaryKey(autoGenerate = true) val reminder_id: Int = 0,
     val task_id: Int,

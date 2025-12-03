@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,67 +26,66 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var tvWelcome: TextView
     private lateinit var tvCurrentDate: TextView
 
+    private var currentUsername: String = "Sayang"
+    private var currentUserId: Int = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
-        // 1. Inisialisasi Database
         db = AppDatabase.getDatabase(this)
 
-        // 2. Kenalan sama komponen di Layout
         rvTasks = findViewById(R.id.rvTasks)
         tvWelcome = findViewById(R.id.tvWelcome)
         tvCurrentDate = findViewById(R.id.tvCurrentDate)
 
-        // 3. Tampilkan Tanggal Hari Ini
-        val today = SimpleDateFormat("EEEE, dd-MM-yyyy", Locale("id", "ID")).format(Date())
-        tvCurrentDate.text = today
+        // Ambil Data User dari Saku
+        val sharedPref = getSharedPreferences("UserSession", MODE_PRIVATE)
+        currentUsername = sharedPref.getString("USERNAME", "Sayang") ?: "Sayang"
+        currentUserId = sharedPref.getInt("USER_ID", -1)
 
-        // 4. Setup RecyclerView (List Tugas)
+        tvWelcome.text = "Halo, $currentUsername!"
+
+        val displayFormatter = SimpleDateFormat("EEEE, dd-MM-yyyy", Locale("id", "ID"))
+        tvCurrentDate.text = displayFormatter.format(Date())
+
         setupRecyclerView()
-
-        // 5. Ambil Data Tugas dari Database
         loadTasks()
 
-        // 6. Setup MENU BAWAH (Bottom Navigation)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
-
-        // Matikan animasi geser biar rapi
         bottomNav.labelVisibilityMode = NavigationBarView.LABEL_VISIBILITY_UNLABELED
 
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_add -> {
-                    // --- TOMBOL TAMBAH (TENGAH) ---
-                    // PINDAH KE HALAMAN TAMBAH TUGAS (ADD TASK)
                     startActivity(Intent(this@DashboardActivity, AddTaskActivity::class.java))
                     true
                 }
-                R.id.nav_home -> {
-                    // Sudah di Home
+                R.id.nav_home -> true
+                R.id.nav_tasks -> {
+                    startActivity(Intent(this@DashboardActivity, TaskListActivity::class.java))
+                    true
+                }
+                R.id.nav_calendar -> {
+                    startActivity(Intent(this@DashboardActivity, CalendarActivity::class.java))
                     true
                 }
                 R.id.nav_profile -> {
-                    Toast.makeText(this@DashboardActivity, "Menu Profil", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this@DashboardActivity, ProfileActivity::class.java))
                     true
                 }
-                else -> true
+                else -> false
             }
         }
-
-        // 7. Tampilkan Nama User
-        val username = intent.getStringExtra("USERNAME") ?: "Sayang"
-        tvWelcome.text = "Halo, $username!"
     }
 
     private fun setupRecyclerView() {
         taskAdapter = TaskAdapter(
             onDeleteClick = { task ->
-                deleteTask(task)
+                // Saat ditekan tahan -> Muncul Pilihan Edit/Hapus
+                showEditDeleteDialog(task)
             },
-            onStatusChange = { task, isChecked ->
-                updateTaskStatus(task, isChecked)
-            }
+            onStatusChange = { task, isChecked -> updateTaskStatus(task, isChecked) }
         )
         rvTasks.adapter = taskAdapter
         rvTasks.layoutManager = LinearLayoutManager(this)
@@ -93,24 +93,82 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun loadTasks() {
         lifecycleScope.launch {
-            db.appDao().getAllTasks().collect { tasks ->
-                taskAdapter.setData(tasks)
+            db.appDao().getUserTasks(currentUserId).collect { allTasks ->
+                // Filter: Hanya tampilkan tugas yang BELUM SELESAI (Pending)
+                val pendingTasks = allTasks.filter { task ->
+                    task.status == "pending"
+                }
+
+                // Sortir: Deadline terdekat di atas, lalu prioritas
+                val sortedTasks = pendingTasks.sortedWith(compareBy(
+                    { it.due_date },
+                    { it.priority_id }
+                ))
+
+                taskAdapter.setData(sortedTasks)
             }
         }
     }
 
+    // --- DIALOG PILIHAN EDIT/HAPUS ---
+    private fun showEditDeleteDialog(task: Task) {
+        val options = arrayOf("Edit Tugas", "Hapus Tugas")
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Pilih Aksi: ${task.title}")
+        builder.setItems(options) { _, which ->
+            when (which) {
+                0 -> { // Edit
+                    val intent = Intent(this, AddTaskActivity::class.java)
+                    intent.putExtra("TASK_ID", task.task_id)
+                    intent.putExtra("TASK_TITLE", task.title)
+                    intent.putExtra("TASK_DATE", task.due_date)
+                    intent.putExtra("TASK_PRIORITY", task.priority_id)
+                    startActivity(intent)
+                }
+                1 -> { // Hapus
+                    confirmDeleteTask(task)
+                }
+            }
+        }
+        builder.show()
+    }
+
     private fun updateTaskStatus(task: Task, isDone: Boolean) {
-        val newStatus = if (isDone) "done" else "pending"
-        val updatedTask = task.copy(status = newStatus)
-        lifecycleScope.launch {
-            db.appDao().updateTask(updatedTask)
+        if (isDone) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Konfirmasi Selesai")
+            builder.setMessage("Yakin tugas '${task.title}' sudah selesai?")
+            builder.setPositiveButton("Ya, Selesai!") { _, _ ->
+                val updatedTask = task.copy(status = "done")
+                lifecycleScope.launch {
+                    db.appDao().updateTask(updatedTask)
+                    Toast.makeText(this@DashboardActivity, "Mantap! Tugas selesai.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            builder.setNegativeButton("Belum") { dialog, _ ->
+                taskAdapter.notifyDataSetChanged()
+                dialog.dismiss()
+            }
+            builder.show()
+        } else {
+            val updatedTask = task.copy(status = "pending")
+            lifecycleScope.launch {
+                db.appDao().updateTask(updatedTask)
+            }
         }
     }
 
-    private fun deleteTask(task: Task) {
-        lifecycleScope.launch {
-            db.appDao().deleteTask(task)
-            Toast.makeText(this@DashboardActivity, "Tugas dihapus", Toast.LENGTH_SHORT).show()
+    private fun confirmDeleteTask(task: Task) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Hapus Tugas")
+        builder.setMessage("Yakin mau menghapus tugas '${task.title}'?")
+        builder.setPositiveButton("Hapus") { _, _ ->
+            lifecycleScope.launch {
+                db.appDao().deleteTask(task)
+                Toast.makeText(this@DashboardActivity, "Tugas dihapus", Toast.LENGTH_SHORT).show()
+            }
         }
+        builder.setNegativeButton("Batal") { dialog, _ -> dialog.dismiss() }
+        builder.show()
     }
 }

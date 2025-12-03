@@ -2,6 +2,7 @@ package com.kelompok9.rajintugas
 
 import android.os.Bundle
 import android.widget.Button
+import android.widget.CheckBox // Jangan lupa import CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -30,6 +31,9 @@ class RegisterActivity : AppCompatActivity() {
         val tvLoginLink = findViewById<TextView>(R.id.tvLoginLink)
         val ivBack = findViewById<ImageView>(R.id.ivBack)
 
+        // Komponen Checkbox (Pastikan ID di XML sudah ditambahkan: android:id="@+id/cbAgree")
+        val cbAgree = findViewById<CheckBox>(R.id.cbAgree)
+
         // 3. Aksi Tombol DAFTAR
         btnRegister.setOnClickListener {
             val name = etName.text.toString()
@@ -37,12 +41,25 @@ class RegisterActivity : AppCompatActivity() {
             val password = etPassword.text.toString()
             val confirmPass = etConfirmPass.text.toString()
 
-            // Validasi Input
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+            // VALIDASI 1: Input Kosong
+            if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPass.isEmpty()) {
                 Toast.makeText(this, "Mohon isi semua data", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // VALIDASI 2: Checkbox Privasi (WAJIB CENTANG)
+            if (!cbAgree.isChecked) {
+                Toast.makeText(this, "Anda harus menyetujui Privasi & Ketentuan", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // VALIDASI 3: Panjang Password (Minimal 8)
+            if (password.length < 8) {
+                Toast.makeText(this, "Password minimal 8 karakter!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // VALIDASI 4: Konfirmasi Password
             if (password != confirmPass) {
                 Toast.makeText(this, "Konfirmasi password tidak sama!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener

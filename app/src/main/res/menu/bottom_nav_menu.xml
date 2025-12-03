@@ -16,9 +16,9 @@
         android:title="Tambah" />
 
     <item
-        android:id="@+id/nav_notification"
-        android:icon="@drawable/ic_notification"
-        android:title="Notif" />
+        android:id="@+id/nav_calendar"
+        android:icon="@drawable/ic_calendar"
+        android:title="Kalender" />
 
     <item
         android:id="@+id/nav_profile"

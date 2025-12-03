@@ -11,44 +11,29 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface AppDao {
 
-    // --- BAGIAN USER (Login & Register - RTG-001) ---
-
+    // --- BAGIAN USER ---
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun registerUser(user: User)
 
-    // Mencari user berdasarkan email & password (untuk Login)
     @Query("SELECT * FROM users WHERE email = :email AND password = :password LIMIT 1")
     suspend fun loginUser(email: String, password: String): User?
 
+    // --- BAGIAN TASK (UPDATE PENTING DISINI) ---
 
-    // --- BAGIAN TASK (Manajemen Tugas - RTG-002) ---
-
-    // Create: Tambah Tugas Baru
     @Insert
     suspend fun insertTask(task: Task)
 
-    // Read: Ambil semua tugas, diurutkan dari deadline paling dekat
-    @Query("SELECT * FROM tasks ORDER BY due_date ASC")
-    fun getAllTasks(): Flow<List<Task>>
+    // PERUBAHAN: Kita tambah WHERE user_id = :userId
+    @Query("SELECT * FROM tasks WHERE user_id = :userId ORDER BY due_date ASC")
+    fun getUserTasks(userId: Int): Flow<List<Task>>
 
-    // Update: Edit tugas atau checklist selesai
     @Update
     suspend fun updateTask(task: Task)
 
-    // Delete: Hapus tugas
     @Delete
     suspend fun deleteTask(task: Task)
 
-
-    // --- BAGIAN PRIORITAS (Untuk Dropdown Warna) ---
-
-    @Query("SELECT * FROM priorities")
-    suspend fun getPriorities(): List<Priority>
-
-    @Insert
-    suspend fun insertPriority(priority: Priority)
-
-    // Fitur Tambahan: Update Password (Reset)
+    // Fitur Reset Password
     @Query("UPDATE users SET password = :newPassword WHERE email = :email")
     suspend fun resetPassword(email: String, newPassword: String): Int
 }
